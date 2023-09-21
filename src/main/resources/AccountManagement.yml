@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: Account Management
+  description: Client Management Microservice for New Lima Bank
+  version: 1.0.0
+  contact:
+    name: Duberly Guarnizo
+    email: duberlygfr@gmail.com
+    url: 'https://duberlyguarnizo.com'
+servers:
+  - url: 'http://localhost:8080'
+    description: Local test server
+  - url: 'https://duberlyguarnizo.com/bootcamp'
+    description: Remote live server
+
+paths:
+  /accounts/passive:
+    get:
+      tags:
+        - Get Account List
+      parameters:
+        - name: type
+          in: query
+          description: The type of passive account.
+          required: true
+          schema:
+            type: string
+            enum:
+              - savings
+              - checking
+              - fixed_term_savings
+      summary: Get list of passive accounts
+      description: Get the list of passive accounts filtered by type
+      responses:
+        200:
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PassiveAccountDetailDto'
+    post:
+      tags:
+        - Create Account
+      summary: Create new passive account
+      description: Create new passive account for a client.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PassiveAccountCreationDto'
+      responses:
+        201:
+          description: New account created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassiveAccountDetailDto'
+        400:
+          description: Bad request. Check the request body.
+        500:
+          description: Account not created. Internal server error.
+
+  /accounts/passive/{accountCode}:
+    parameters:
+      - name: accountCode
+        required: true
+        description: The account number
+        in: path
+        schema:
+          type: string
+          minLength: 15
+          maxLength: 15
+    get:
+      tags:
+        - Get Account By Id
+      summary: Get a single passive accounts
+      description: Get a single passive account by accountId.
+      responses:
+        200:
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassiveAccountDetailDto'
+        404:
+          description: No account found with the provided account code.
+    put:
+      tags:
+        - Modify Account
+      summary: Modify a passive account
+      description: Modify a passive account for a client.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PassiveAccountCreationDto'
+      responses:
+        200:
+          description: Account modified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PassiveAccountDetailDto'
+        404:
+          description: No account found with the provided account code. Cannot update.
+        500:
+          description: Error while trying to update the account.
+    delete:
+      tags:
+        - Delete Account
+      summary: Delete a passive account
+      description: Mark a passive account as deleted.
+      responses:
+        204:
+          description: Account deleted.
+        404:
+          description: No account found with the provided account code. Cannot delete.
+        500:
+          description: Error while trying to delete the account.
+
+  /accounts/asset:
+    get:
+      tags:
+        - Get Account List
+      parameters:
+        - name: type
+          in: query
+          description: The type of asset account
+          required: true
+          schema:
+            type: string
+            enum:
+              - regular_account
+              - corporate_account
+              - credit_card_account
+      summary: Get list of asset accounts
+      description: Get the list of asset accounts filtered by type
+      responses:
+        200:
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetAccountDetailDto'
+    post:
+      tags:
+        - Create Account
+      summary: Create new asset account
+      description: Create new asset account for a client.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetAccountCreationDto'
+      responses:
+        201:
+          description: New account created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetAccountDetailDto'
+        400:
+          description: Bad request. Check the request body.
+        500:
+          description: Account not created. Internal server error.
+
+  /accounts/asset/{accountCode}:
+    parameters:
+      - name: accountCode
+        required: true
+        description: The account number
+        in: path
+        schema:
+          type: string
+          minLength: 15
+          maxLength: 15
+    get:
+      tags:
+        - Get Account By Id
+      summary: Get a single asset account
+      description: Get a single asset account by account code.
+      responses:
+        200:
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetAccountDetailDto'
+        404:
+          description: No account found with the provided account code.
+    put:
+      tags:
+        - Modify Account
+      summary: Modify an asset account
+      description: Modify an asset account for a client.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetAccountCreationDto'
+      responses:
+        200:
+          description: Account modified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetAccountDetailDto'
+        404:
+          description: No account found with the provided account code. Cannot update.
+        500:
+          description: Error while trying to update the account.
+    delete:
+      tags:
+        - Delete Account
+      summary: Delete an asset account
+      description: Mark an asset account as deleted.
+      responses:
+        204:
+          description: Account deleted. #TODO: add more status codes
+        404:
+          description: No account found with the provided account code. Cannot delete.
+        500:
+          description: Error while trying to delete the account.
+
+  /accounts/{clientId}:
+    parameters:
+      - name: clientId
+        description: the Id card or legal Id of the client.
+        in: path
+        schema:
+          type: string
+    get:
+      tags:
+        - Get Account List
+      summary: Get accounts for client
+      description: Composed list of accounts for the specified client.
+      responses:
+        200:
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountListForUserDto'
+
+components:
+  schemas:
+    PassiveAccountDetailDto:
+      type: object
+      description: Return a single instance of a type of account that represents expenses for the bank.
+      properties:
+        accountCode:
+          description: A 15 digit account number
+          type: string
+        balance:
+          $ref: '#/components/schemas/MoneyAmount'
+        clientType:
+          description: The type of client.
+          type: string
+          enum:
+            - regular_client
+            - corporate_client
+        clientId:
+          description: The ID card or Legal Id number of the client.
+          type: string
+        passiveAccountType:
+          description: The type of this passive account.
+          type: string
+          enum:
+            - personal_account
+            - corporate_account
+            - credit_card_account
+        auditing:
+          $ref: '#/components/schemas/AuditingInfo'
+
+    PassiveAccountCreationDto:
+      type: object
+      description: Create a new passive account.
+      required:
+        - balance
+        - clientType
+        - clientId
+        - passiveAccountType
+      properties:
+        balance:
+          $ref: '#/components/schemas/MoneyAmount'
+        clientType:
+          description: The type of client.
+          type: string
+          default: regular_client
+          enum:
+            - regular_client
+            - corporate_client
+        clientId:
+          description: The ID card or Legal Id number of the client.
+          type: string
+        passiveAccountType:
+          type: string
+          description: The type of this passive account.
+          enum:
+            - personal_account
+            - corporate_account
+            - credit_card_account
+
+    AssetAccountDetailDto:
+      type: object
+      description: A type of account that represents earnings for the bank.
+      properties:
+        accountCode:
+          description: A 15 digit number of account.
+          type: string
+        balance:
+          $ref: '#/components/schemas/MoneyAmount'
+        clientType:
+          description: The type of client.
+          type: string
+          enum:
+            - regular_client
+            - corporate_client
+        clientId:
+          description: The ID card or Legal Id number of the client.
+          type: string
+        assetAccountType:
+          description: The asset account type
+          type: string
+          enum:
+            - savings_account
+            - checking_account
+            - fixed_term_savings_account
+        auditing:
+          $ref: '#/components/schemas/AuditingInfo'
+
+    AssetAccountCreationDto:
+      type: object
+      description: A type of account that represents earnings for the bank.
+      required:
+        - balance
+        - clientType
+        - clientId
+        - assetAccountType
+      properties:
+        balance:
+          $ref: '#/components/schemas/MoneyAmount'
+        clientType:
+          description: The type of the client.
+          type: string
+          default: regular_client
+          enum:
+            - regular_client
+            - corporate_client
+        clientId:
+          description: The ID card or Legal Id number of the client.
+          type: string
+        assetAccountType:
+          description: The type of asset account.
+          type: string
+          enum:
+            - savings_account
+            - checking_account
+            - fixed_term_savings_account
+
+    AccountListForUserDto:
+      type: object
+      properties:
+        passiveAccounts:
+          description: List of passive accounts
+          type: array
+          items:
+            $ref: '#/components/schemas/PassiveAccountDetailDto'
+        assetAccounts:
+          description: List of asset accounts
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetAccountDetailDto'
+
+    MoneyAmount:
+      type: object
+      description: An amount of money.
+      properties:
+        value:
+          description: The amount.
+          type: number
+          format: double
+          minimum: 0
+
+    AuditingInfo:
+      description: Auditing data for created entities.
+      type: object
+      properties:
+        createdAt:
+          description: Datetime of the creation (with zone)
+          type: string
+          format: date-time
+          example: 2023-09-21T17:32:28Z
+        createdBy:
+          description: Bank user Id that created the client.
+          type: string
+        modifiedAt:
+          description: Datetime of the last modification (with zone)
+          type: string
+          format: date-time
+          example: 2023-09-21T17:32:28Z
+        modifiedBy: #TODO: add description fields to all properties
+          description: Bank user Id that made the last modification to the client.
+          type: string

@@ -109,13 +109,17 @@
                                 ${project.basedir}/src/main/resources/AccountManagement.yml
                             </inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>com.duberlyguarnizo.accountmanagementservice.application.api</apiPackage>
-                            <modelPackage>com.duberlyguarnizo.accountmanagementservice.domain.dto</modelPackage>
+                            <apiPackage>com.duberlyguarnizo.accountmanagementservice.api
+                            </apiPackage>
+                            <modelPackage>com.duberlyguarnizo.accountmanagementservice.domain
+                            </modelPackage>
                             <supportingFilesToGenerate>
                                 ApiUtil.java
                             </supportingFilesToGenerate>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
+                                <additionalModelTypeAnnotations>@lombok.Builder
+                                </additionalModelTypeAnnotations>
                             </configOptions>
                         </configuration>
                     </execution>

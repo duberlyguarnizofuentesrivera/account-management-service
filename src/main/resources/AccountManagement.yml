@@ -31,6 +31,7 @@ paths:
               - fixed_term_savings
       summary: Get list of passive accounts
       description: Get the list of passive accounts filtered by type
+      operationId: getPassiveAccounts
       responses:
         200:
           description: Successful Operation
@@ -39,12 +40,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PassiveAccountDetailDto'
+                  $ref: '#/components/schemas/PassiveAccount'
     post:
       tags:
         - Create Account
       summary: Create new passive account
       description: Create new passive account for a client.
+      operationId: createPassiveAccount
       requestBody:
         content:
           application/json:
@@ -56,7 +58,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PassiveAccountDetailDto'
+                $ref: '#/components/schemas/PassiveAccount'
         400:
           description: Bad request. Check the request body.
         500:
@@ -77,13 +79,14 @@ paths:
         - Get Account By Id
       summary: Get a single passive accounts
       description: Get a single passive account by accountId.
+      operationId: getPassiveAccountByAccountCode
       responses:
         200:
           description: Successful Operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PassiveAccountDetailDto'
+                $ref: '#/components/schemas/PassiveAccount'
         404:
           description: No account found with the provided account code.
     put:
@@ -91,6 +94,7 @@ paths:
         - Modify Account
       summary: Modify a passive account
       description: Modify a passive account for a client.
+      operationId: modifyPassiveAccount
       requestBody:
         content:
           application/json:
@@ -102,7 +106,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PassiveAccountDetailDto'
+                $ref: '#/components/schemas/PassiveAccount'
         404:
           description: No account found with the provided account code. Cannot update.
         500:
@@ -112,6 +116,7 @@ paths:
         - Delete Account
       summary: Delete a passive account
       description: Mark a passive account as deleted.
+      operationId: deletePassiveAccount
       responses:
         204:
           description: Account deleted.
@@ -137,6 +142,7 @@ paths:
               - credit_card_account
       summary: Get list of asset accounts
       description: Get the list of asset accounts filtered by type
+      operationId: getAssetAccounts
       responses:
         200:
           description: Successful Operation
@@ -145,12 +151,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AssetAccountDetailDto'
+                  $ref: '#/components/schemas/AssetAccount'
     post:
       tags:
         - Create Account
       summary: Create new asset account
       description: Create new asset account for a client.
+      operationId: createAssetAccount
       requestBody:
         content:
           application/json:
@@ -162,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetAccountDetailDto'
+                $ref: '#/components/schemas/AssetAccount'
         400:
           description: Bad request. Check the request body.
         500:
@@ -183,13 +190,14 @@ paths:
         - Get Account By Id
       summary: Get a single asset account
       description: Get a single asset account by account code.
+      operationId: getAssetAccountByAccountCode
       responses:
         200:
           description: Successful Operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetAccountDetailDto'
+                $ref: '#/components/schemas/AssetAccount'
         404:
           description: No account found with the provided account code.
     put:
@@ -197,6 +205,7 @@ paths:
         - Modify Account
       summary: Modify an asset account
       description: Modify an asset account for a client.
+      operationId: modifyAssetAccount
       requestBody:
         content:
           application/json:
@@ -208,7 +217,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetAccountDetailDto'
+                $ref: '#/components/schemas/AssetAccount'
         404:
           description: No account found with the provided account code. Cannot update.
         500:
@@ -218,6 +227,7 @@ paths:
         - Delete Account
       summary: Delete an asset account
       description: Mark an asset account as deleted.
+      operationId: deleteAssetAccount
       responses:
         204:
           description: Account deleted. #TODO: add more status codes
@@ -238,6 +248,7 @@ paths:
         - Get Account List
       summary: Get accounts for client
       description: Composed list of accounts for the specified client.
+      operationId: getAccountsByClientId
       responses:
         200:
           description: Successful Operation
@@ -248,7 +259,7 @@ paths:
 
 components:
   schemas:
-    PassiveAccountDetailDto:
+    PassiveAccount:
       type: object
       description: Return a single instance of a type of account that represents expenses for the bank.
       properties:
@@ -273,8 +284,14 @@ components:
             - personal_account
             - corporate_account
             - credit_card_account
-        auditing:
-          $ref: '#/components/schemas/AuditingInfo'
+        createdAt:
+          description: Datetime of the creation (with zone)
+          type: string
+          format: date-time
+          example: 2023-09-21T17:32:28Z
+        createdBy:
+          description: Bank user Id that created the client.
+          type: string
 
     PassiveAccountCreationDto:
       type: object
@@ -305,7 +322,7 @@ components:
             - corporate_account
             - credit_card_account
 
-    AssetAccountDetailDto:
+    AssetAccount:
       type: object
       description: A type of account that represents earnings for the bank.
       properties:
@@ -330,8 +347,14 @@ components:
             - savings_account
             - checking_account
             - fixed_term_savings_account
-        auditing:
-          $ref: '#/components/schemas/AuditingInfo'
+        createdAt:
+          description: Datetime of the creation (with zone)
+          type: string
+          format: date-time
+          example: 2023-09-21T17:32:28Z
+        createdBy:
+          description: Bank user Id that created the client.
+          type: string
 
     AssetAccountCreationDto:
       type: object
@@ -369,12 +392,12 @@ components:
           description: List of passive accounts
           type: array
           items:
-            $ref: '#/components/schemas/PassiveAccountDetailDto'
+            $ref: '#/components/schemas/PassiveAccount'
         assetAccounts:
           description: List of asset accounts
           type: array
           items:
-            $ref: '#/components/schemas/AssetAccountDetailDto'
+            $ref: '#/components/schemas/AssetAccount'
 
     MoneyAmount:
       type: object
@@ -386,23 +409,3 @@ components:
           format: double
           minimum: 0
 
-    AuditingInfo:
-      description: Auditing data for created entities.
-      type: object
-      properties:
-        createdAt:
-          description: Datetime of the creation (with zone)
-          type: string
-          format: date-time
-          example: 2023-09-21T17:32:28Z
-        createdBy:
-          description: Bank user Id that created the client.
-          type: string
-        modifiedAt:
-          description: Datetime of the last modification (with zone)
-          type: string
-          format: date-time
-          example: 2023-09-21T17:32:28Z
-        modifiedBy: #TODO: add description fields to all properties
-          description: Bank user Id that made the last modification to the client.
-          type: string

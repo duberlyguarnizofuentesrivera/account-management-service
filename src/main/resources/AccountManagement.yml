@@ -40,7 +40,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PassiveAccount'
+                  $ref: '#/components/schemas/PassiveAccountDto'
     post:
       tags:
         - Create Account
@@ -55,10 +55,6 @@ paths:
       responses:
         201:
           description: New account created.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PassiveAccount'
         400:
           description: Bad request. Check the request body.
         500:
@@ -86,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PassiveAccount'
+                $ref: '#/components/schemas/PassiveAccountDto'
         404:
           description: No account found with the provided account code.
     put:
@@ -103,10 +99,6 @@ paths:
       responses:
         200:
           description: Account modified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PassiveAccount'
         404:
           description: No account found with the provided account code. Cannot update.
         500:
@@ -151,7 +143,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AssetAccount'
+                  $ref: '#/components/schemas/AssetAccountDto'
     post:
       tags:
         - Create Account
@@ -166,10 +158,6 @@ paths:
       responses:
         201:
           description: New account created.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AssetAccount'
         400:
           description: Bad request. Check the request body.
         500:
@@ -197,7 +185,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetAccount'
+                $ref: '#/components/schemas/AssetAccountDto'
         404:
           description: No account found with the provided account code.
     put:
@@ -214,10 +202,6 @@ paths:
       responses:
         200:
           description: Account modified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AssetAccount'
         404:
           description: No account found with the provided account code. Cannot update.
         500:
@@ -243,6 +227,7 @@ paths:
         in: path
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Get Account List
@@ -259,131 +244,104 @@ paths:
 
 components:
   schemas:
-    PassiveAccount:
+    PassiveAccountDto:
       type: object
       description: Return a single instance of a type of account that represents expenses for the bank.
       properties:
         accountCode:
-          description: A 15 digit account number
+          description: A 14 digit account number
           type: string
         balance:
-          $ref: '#/components/schemas/MoneyAmount'
-        clientType:
-          description: The type of client.
-          type: string
-          enum:
-            - regular_client
-            - corporate_client
+          type: number
+          format: double
         clientId:
           description: The ID card or Legal Id number of the client.
           type: string
+          format: uuid
         passiveAccountType:
           description: The type of this passive account.
           type: string
           enum:
-            - personal_account
-            - corporate_account
-            - credit_card_account
+            - savings_account
+            - checking_account
+            - fixed_term_savings_account
         createdAt:
           description: Datetime of the creation (with zone)
           type: string
           format: date-time
           example: 2023-09-21T17:32:28Z
-        createdBy:
-          description: Bank user Id that created the client.
-          type: string
 
     PassiveAccountCreationDto:
       type: object
       description: Create a new passive account.
       required:
         - balance
-        - clientType
         - clientId
         - passiveAccountType
       properties:
         balance:
-          $ref: '#/components/schemas/MoneyAmount'
-        clientType:
-          description: The type of client.
-          type: string
-          default: regular_client
-          enum:
-            - regular_client
-            - corporate_client
+          type: number
+          format: double
         clientId:
           description: The ID card or Legal Id number of the client.
           type: string
+          format: uuid
         passiveAccountType:
           type: string
           description: The type of this passive account.
           enum:
-            - personal_account
-            - corporate_account
-            - credit_card_account
+            - savings_account
+            - checking_account
+            - fixed_term_savings_account
 
-    AssetAccount:
+    AssetAccountDto:
       type: object
       description: A type of account that represents earnings for the bank.
       properties:
         accountCode:
-          description: A 15 digit number of account.
+          description: A 14 digit number of account.
           type: string
         balance:
-          $ref: '#/components/schemas/MoneyAmount'
-        clientType:
-          description: The type of client.
-          type: string
-          enum:
-            - regular_client
-            - corporate_client
+          type: number
+          format: double
         clientId:
           description: The ID card or Legal Id number of the client.
           type: string
+          format: uuid
         assetAccountType:
           description: The asset account type
           type: string
           enum:
-            - savings_account
-            - checking_account
-            - fixed_term_savings_account
+            - loan_account
+            - credit_card_account
         createdAt:
           description: Datetime of the creation (with zone)
           type: string
           format: date-time
           example: 2023-09-21T17:32:28Z
-        createdBy:
-          description: Bank user Id that created the client.
-          type: string
+
 
     AssetAccountCreationDto:
       type: object
       description: A type of account that represents earnings for the bank.
       required:
         - balance
-        - clientType
         - clientId
         - assetAccountType
       properties:
         balance:
-          $ref: '#/components/schemas/MoneyAmount'
-        clientType:
-          description: The type of the client.
-          type: string
-          default: regular_client
-          enum:
-            - regular_client
-            - corporate_client
+          type: number
+          format: double
         clientId:
           description: The ID card or Legal Id number of the client.
           type: string
+          format: uuid
         assetAccountType:
           description: The type of asset account.
           type: string
           enum:
-            - savings_account
-            - checking_account
-            - fixed_term_savings_account
+            - loan_account
+            - credit_card_account
 
     AccountListForUserDto:
       type: object
@@ -392,20 +350,10 @@ components:
           description: List of passive accounts
           type: array
           items:
-            $ref: '#/components/schemas/PassiveAccount'
+            $ref: '#/components/schemas/PassiveAccountDto'
         assetAccounts:
           description: List of asset accounts
           type: array
           items:
-            $ref: '#/components/schemas/AssetAccount'
-
-    MoneyAmount:
-      type: object
-      description: An amount of money.
-      properties:
-        value:
-          description: The amount.
-          type: number
-          format: double
-          minimum: 0
+            $ref: '#/components/schemas/AssetAccountDto'
 

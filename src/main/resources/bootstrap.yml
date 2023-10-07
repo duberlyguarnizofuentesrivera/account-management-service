@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888/
+  application:
+    name: account-management-service
+    #delete this after... just for testing purposes
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: accountManagement
+
